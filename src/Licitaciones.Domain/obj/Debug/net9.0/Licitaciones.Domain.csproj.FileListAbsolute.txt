@@ -1,0 +1,12 @@
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\bin\Debug\net9.0\Licitaciones.Domain.deps.json
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\bin\Debug\net9.0\Licitaciones.Domain.dll
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\bin\Debug\net9.0\Licitaciones.Domain.pdb
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.AssemblyInfoInputs.cache
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.AssemblyInfo.cs
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.csproj.CoreCompileInputs.cache
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.sourcelink.json
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.dll
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\refint\Licitaciones.Domain.dll
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\Licitaciones.Domain.pdb
+C:\Users\KristelGM\Desktop\Sistema_Gestion_Licitaciones\src\Licitaciones.Domain\obj\Debug\net9.0\ref\Licitaciones.Domain.dll
