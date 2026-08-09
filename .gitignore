@@ -1,0 +1,40 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Rider / VS
+.vs/
+.idea/
+*.DotSettings.user
+
+# Test results / coverage
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Secrets and local env
+*.env
+.env
+.env.*
+appsettings.*.local.json
+k8s/app-secret.yaml
+
+# Playwright
+tests/**/bin/
+tests/**/obj/
+playwright-report/
+test-results/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (Playwright browsers installer, if used)
+node_modules/
+
+# Documento de enunciado del curso (no es documentación del proyecto)
+Proyecto Final_ Sistema de Gestión de Licitaciones en XP.md
