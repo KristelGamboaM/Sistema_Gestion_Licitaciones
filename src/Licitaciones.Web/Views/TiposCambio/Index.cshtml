@@ -1,0 +1,60 @@
+@model IReadOnlyList<Licitaciones.Application.TiposCambio.TipoCambioDto>
+@{
+    ViewData["Title"] = "Tipos de cambio";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Tipos de cambio</h1>
+    <a asp-action="Create" class="btn btn-primary">Nuevo tipo de cambio</a>
+</div>
+
+<p class="text-muted">
+    Los montos se almacenan siempre en colones (CRC); el dólar es una representación calculada con la
+    tasa activa. Solo puede haber un tipo de cambio activo a la vez.
+</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No hay tipos de cambio configurados.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Colones por dólar</th>
+                <th>Fecha de vigencia</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var tipoCambio in Model.OrderByDescending(t => t.FechaVigencia))
+        {
+            <tr>
+                <td>₡@tipoCambio.CRCporUSD.ToString("N6")</td>
+                <td>@tipoCambio.FechaVigencia.ALocalCostaRica().ToString("dd/MM/yyyy")</td>
+                <td>
+                    @if (tipoCambio.Activo)
+                    {
+                        <span class="badge text-bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Inactivo</span>
+                    }
+                </td>
+                <td class="text-end">
+                    @if (!tipoCambio.Activo)
+                    {
+                        <form asp-action="Activar" asp-route-id="@tipoCambio.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                        </form>
+                    }
+                    <a asp-action="Edit" asp-route-id="@tipoCambio.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
