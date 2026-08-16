@@ -1,0 +1,77 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: licitaciones
+      POSTGRES_USER: licitaciones
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-licitaciones_local}
+    volumes:
+      - licitaciones-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U licitaciones -d licitaciones"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # No se publica el puerto al host por defecto (solo la red interna de
+    # Compose); descomentar solo para inspección manual con un cliente SQL.
+    # ports:
+    #   - "5432:5432"
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: Licitaciones.Migrator
+    environment:
+      ConnectionStrings__LicitacionesDb: Host=db;Port=5432;Database=licitaciones;Username=licitaciones;Password=${POSTGRES_PASSWORD:-licitaciones_local}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: Licitaciones.Web
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__LicitacionesDb: Host=db;Port=5432;Database=licitaciones;Username=licitaciones;Password=${POSTGRES_PASSWORD:-licitaciones_local}
+      ApiBaseUrl: http://localhost:8081
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: Licitaciones.Api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__LicitacionesDb: Host=db;Port=5432;Database=licitaciones;Username=licitaciones;Password=${POSTGRES_PASSWORD:-licitaciones_local}
+    ports:
+      - "8081:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/swagger/v1/swagger.json"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  licitaciones-db-data:
