@@ -29,6 +29,14 @@ tests/**/obj/
 playwright-report/
 test-results/
 
+# Python (scripts/verificar-cobertura.py)
+__pycache__/
+*.pyc
+
+# Ayudante local para organizar los commits (no es parte de la entrega)
+/plan-commits.sh
+scripts/lista-commits.md
+
 # OS
 .DS_Store
 Thumbs.db
