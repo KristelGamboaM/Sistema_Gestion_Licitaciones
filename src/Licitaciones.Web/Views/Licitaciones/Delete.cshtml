@@ -1,0 +1,16 @@
+@model Licitaciones.Application.Licitaciones.LicitacionDto
+@{
+    ViewData["Title"] = "Eliminar licitación";
+}
+
+<h1>Eliminar licitación</h1>
+
+<div class="alert alert-warning">
+    ¿Confirma que desea eliminar la licitación <strong>@Model.Codigo</strong> — @Model.Titulo? Esta acción aplica
+    un borrado lógico; las ofertas ya registradas se conservan como evidencia.
+</div>
+
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

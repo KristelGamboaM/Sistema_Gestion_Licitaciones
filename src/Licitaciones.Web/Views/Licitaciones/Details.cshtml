@@ -1,0 +1,73 @@
+@model Licitaciones.Application.Licitaciones.LicitacionDto
+@{
+    ViewData["Title"] = $"Licitación {Model.Codigo}";
+    var mejorOferta = ViewBag.MejorOferta as Licitaciones.Application.Licitaciones.MejorOfertaDto;
+    var culturaCr = new System.Globalization.CultureInfo("es-CR");
+}
+
+<h1>@Model.Codigo — @Model.Titulo</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">
+        @Model.Estado
+        @if (Model.Estado == "Publicada" && Model.EsEfectivamenteCerrada)
+        {
+            <span class="badge text-bg-warning">Vencida (cerrada funcionalmente)</span>
+        }
+    </dd>
+
+    <dt class="col-sm-3">Fecha de cierre (Costa Rica)</dt>
+    <dd class="col-sm-9">@Model.FechaCierre.ALocalCostaRica().ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Presupuesto estimado</dt>
+    <dd class="col-sm-9">
+        <span data-monto-crc="@Model.PresupuestoEstimadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+            ₡@Model.PresupuestoEstimadoCRC.ToString("N2", culturaCr)
+        </span>
+    </dd>
+</dl>
+
+<div class="mb-4">
+    @if (Model.Estado == "Borrador")
+    {
+        <form asp-action="Publicar" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-success">Publicar</button>
+        </form>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Editar</a>
+    }
+    @if (Model.Estado != "Cerrada")
+    {
+        <form asp-action="Cerrar" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-dark">Cerrar</button>
+        </form>
+    }
+    <a asp-controller="Ofertas" asp-action="Index" asp-route-licitacionId="@Model.Id" class="btn btn-outline-secondary">Ver ofertas</a>
+</div>
+
+<div class="card">
+    <div class="card-header">Mejor oferta</div>
+    <div class="card-body">
+        @if (mejorOferta is null || !mejorOferta.TieneOfertaValida)
+        {
+            <p class="mb-0">Sin ofertas válidas</p>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Proveedor</dt>
+                <dd class="col-sm-9">@mejorOferta.ProveedorNombre</dd>
+                <dt class="col-sm-3">Monto</dt>
+                <dd class="col-sm-9">
+                    <span data-monto-crc="@mejorOferta.MontoOfertadoCRC?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        ₡@mejorOferta.MontoOfertadoCRC?.ToString("N2", culturaCr)
+                    </span>
+                </dd>
+                <dt class="col-sm-3">Ahorro</dt>
+                <dd class="col-sm-9">@mejorOferta.PorcentajeAhorro.ToString("N2")% — @mejorOferta.Clasificacion</dd>
+                <dt class="col-sm-3">Nivel de aprobación</dt>
+                <dd class="col-sm-9">@(mejorOferta.Aprobador ?? "Sin nivel configurado para este monto")</dd>
+            </dl>
+        }
+    </div>
+</div>
