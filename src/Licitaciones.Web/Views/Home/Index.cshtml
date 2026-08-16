@@ -1,8 +1,109 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@inject IConfiguration Configuracion
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-4 p-md-5 mb-4 rounded-3 bg-body-secondary">
+    <h1 class="display-5 fw-bold">Sistema de Gestión de Licitaciones</h1>
+    <p class="col-lg-8 fs-5">
+        Administra el ciclo completo de una licitación pública: publicación, recepción de ofertas de
+        proveedores, determinación automática de la mejor oferta y del nivel de aprobación
+        correspondiente, con el colón costarricense (CRC) como moneda oficial y una conversión
+        referencial a dólares (USD) mediante un tipo de cambio administrado localmente.
+    </p>
 </div>
+
+<h2 class="h4">Flujo de una licitación</h2>
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h6">1. Publicar</h3>
+                <p class="card-text small">
+                    Se registra una licitación en <strong>Borrador</strong> con código único, presupuesto
+                    y fecha/hora de cierre, y luego se <strong>publica</strong> para habilitar ofertas.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h6">2. Ofertar</h3>
+                <p class="card-text small">
+                    Cada <strong>proveedor</strong> puede registrar una sola oferta por licitación,
+                    siempre que no supere el presupuesto ni la fecha de cierre.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="h6">3. Aprobar</h3>
+                <p class="card-text small">
+                    El sistema calcula la <strong>mejor oferta</strong>, su porcentaje de ahorro y el
+                    <strong>nivel de aprobación</strong> según el presupuesto, consultando una tabla
+                    parametrizable de rangos.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h4">Módulos</h2>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    <div class="col">
+        <a asp-controller="Licitaciones" asp-action="Index" class="card h-100 text-decoration-none text-body">
+            <div class="card-body">
+                <h3 class="h6">Licitaciones</h3>
+                <p class="card-text small mb-0">Ciclo de vida, publicación, cierre y mejor oferta.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a asp-controller="Proveedores" asp-action="Index" class="card h-100 text-decoration-none text-body">
+            <div class="card-body">
+                <h3 class="h6">Proveedores</h3>
+                <p class="card-text small mb-0">Catálogo de proveedores habilitados para ofertar.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a asp-controller="Ofertas" asp-action="Index" class="card h-100 text-decoration-none text-body">
+            <div class="card-body">
+                <h3 class="h6">Ofertas</h3>
+                <p class="card-text small mb-0">Ofertas económicas registradas por licitación.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a asp-controller="NivelesAprobacion" asp-action="Index" class="card h-100 text-decoration-none text-body">
+            <div class="card-body">
+                <h3 class="h6">Niveles de aprobación</h3>
+                <p class="card-text small mb-0">Rangos de monto y su aprobador correspondiente.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a asp-controller="TiposCambio" asp-action="Index" class="card h-100 text-decoration-none text-body">
+            <div class="card-body">
+                <h3 class="h6">Tipo de cambio</h3>
+                <p class="card-text small mb-0">Tasas CRC/USD y activación del tipo de cambio vigente.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="@(Configuracion["ApiBaseUrl"])/swagger" target="_blank" rel="noopener" class="card h-100 text-decoration-none text-body">
+            <div class="card-body">
+                <h3 class="h6">API REST</h3>
+                <p class="card-text small mb-0">Documentación interactiva (OpenAPI/Swagger) de todos los endpoints.</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<p class="text-muted small mt-4">
+    Usa los botones "Ver en $ USD" y "🌓 Tema" en la barra superior para alternar la moneda mostrada y
+    el modo claro/oscuro; ambas preferencias se recuerdan en este navegador.
+</p>
