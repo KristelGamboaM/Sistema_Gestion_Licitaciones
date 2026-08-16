@@ -1,0 +1,87 @@
+### Colección reproducible de solicitudes — Sistema de Gestión de Licitaciones API
+### Uso: abrir este archivo en VS Code con la extensión "REST Client" (o equivalente)
+### y ejecutar las solicitudes en orden; las variables se completan a mano tras
+### leer el "id" devuelto por cada creación. También es ejecutable con `curl`
+### copiando el método, URL, encabezados y cuerpo de cada bloque.
+
+@baseUrl = http://localhost:5081/api/v1
+
+### 1. Crear un proveedor
+POST {{baseUrl}}/proveedores
+Content-Type: application/json
+
+{
+  "nombre": "Constructora Central"
+}
+
+### 2. Listar proveedores (paginado, con búsqueda)
+GET {{baseUrl}}/proveedores?busqueda=central&pagina=1&tamanoPagina=20
+
+### 3. Crear una licitación
+POST {{baseUrl}}/licitaciones
+Content-Type: application/json
+
+{
+  "codigo": "LIC-2026-001",
+  "titulo": "Compra de equipo de cómputo",
+  "presupuestoEstimadoCRC": 5000000,
+  "fechaCierre": "2026-12-31T10:00:00-06:00"
+}
+
+### 4. Publicar la licitación (usar el "id" devuelto en el paso 3)
+PATCH {{baseUrl}}/licitaciones/{{licitacionId}}/estado
+Content-Type: application/json
+
+{
+  "accion": "Publicar"
+}
+
+### 5. Registrar una oferta (usar los "id" de los pasos 1 y 3)
+POST {{baseUrl}}/licitaciones/{{licitacionId}}/ofertas
+Content-Type: application/json
+
+{
+  "proveedorId": "{{proveedorId}}",
+  "montoOfertadoCRC": 4500000
+}
+
+### 6. Intentar una oferta duplicada del mismo proveedor (debe devolver 409)
+POST {{baseUrl}}/licitaciones/{{licitacionId}}/ofertas
+Content-Type: application/json
+
+{
+  "proveedorId": "{{proveedorId}}",
+  "montoOfertadoCRC": 4600000
+}
+
+### 7. Intentar una oferta superior al presupuesto (debe devolver 422)
+POST {{baseUrl}}/licitaciones/{{licitacionId}}/ofertas
+Content-Type: application/json
+
+{
+  "proveedorId": "{{proveedorId}}",
+  "montoOfertadoCRC": 9000000
+}
+
+### 8. Consultar la mejor oferta y el nivel de aprobación
+GET {{baseUrl}}/licitaciones/{{licitacionId}}/mejor-oferta
+
+### 9. Listar niveles de aprobación (datos semilla)
+GET {{baseUrl}}/niveles-aprobacion
+
+### 10. Consultar el tipo de cambio activo (dato semilla)
+GET {{baseUrl}}/tipos-cambio/activo
+
+### 11. Convertir un monto de CRC a USD con la tasa activa
+GET {{baseUrl}}/tipos-cambio/convertir?montoCRC=1000000
+
+### 12. Cerrar la licitación
+PATCH {{baseUrl}}/licitaciones/{{licitacionId}}/estado
+Content-Type: application/json
+
+{
+  "accion": "Cerrar"
+}
+
+### 13. Eliminar (borrado lógico) el proveedor creado en el paso 1
+DELETE {{baseUrl}}/proveedores/{{proveedorId}}
