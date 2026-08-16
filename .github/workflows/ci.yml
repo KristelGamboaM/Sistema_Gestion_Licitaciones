@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_VERSION: "9.0.x"
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  build-test:
+    name: Compilar, formatear, analizar y probar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restaurar dependencias
+        run: dotnet restore Licitaciones.sln
+
+      - name: Compilar (sin advertencias evitables)
+        run: dotnet build Licitaciones.sln --no-restore -warnaserror
+
+      - name: Verificar formato de código
+        run: dotnet format Licitaciones.sln --verify-no-changes --no-restore
+
+      - name: Revisar dependencias vulnerables
+        run: |
+          resultado=$(dotnet list Licitaciones.sln package --vulnerable --include-transitive 2>&1)
+          echo "$resultado"
+          if echo "$resultado" | grep -qi "has the following vulnerable packages"; then
+            echo "::error::Se encontraron paquetes con vulnerabilidades conocidas."
+            exit 1
+          fi
+
+      - name: Pruebas unitarias (con cobertura)
+        run: >
+          dotnet test tests/Licitaciones.UnitTests/Licitaciones.UnitTests.csproj
+          --no-build --configuration Debug
+          --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Pruebas de integración (PostgreSQL real vía Testcontainers)
+        run: >
+          dotnet test tests/Licitaciones.IntegrationTests/Licitaciones.IntegrationTests.csproj
+          --no-build --configuration Debug
+          --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Instalar navegadores de Playwright
+        run: |
+          dotnet build tests/Licitaciones.FunctionalTests/Licitaciones.FunctionalTests.csproj -c Debug
+          pwsh tests/Licitaciones.FunctionalTests/bin/Debug/net9.0/playwright.ps1 install --with-deps chromium
+
+      - name: Pruebas funcionales E2E (Playwright)
+        run: >
+          dotnet test tests/Licitaciones.FunctionalTests/Licitaciones.FunctionalTests.csproj
+          --no-build --configuration Debug
+
+      - name: Generar reporte de cobertura
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator "-reports:TestResults/*/coverage.cobertura.xml" "-targetdir:TestResults/Report" "-reporttypes:TextSummary;Html;Cobertura"
+          cat TestResults/Report/Summary.txt
+
+      - name: Verificar umbral de cobertura (Domain+Application 80%, global 70%)
+        run: python3 scripts/verificar-cobertura.py TestResults/Report/Cobertura.xml
+
+      - name: Publicar reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: TestResults/Report
+
+  docker-build:
+    name: Construir imágenes Docker
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen de Licitaciones.Web
+        run: docker build --build-arg PROJECT=Licitaciones.Web -t licitaciones-web:ci .
+
+      - name: Construir imagen de Licitaciones.Api
+        run: docker build --build-arg PROJECT=Licitaciones.Api -t licitaciones-api:ci .
+
+      - name: Construir imagen de Licitaciones.Migrator
+        run: docker build --build-arg PROJECT=Licitaciones.Migrator -t licitaciones-migrator:ci .
+
+  validate-k8s:
+    name: Validar manifiestos de Kubernetes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: kubeconform
+        run: >
+          docker run --rm -v "${{ github.workspace }}/k8s:/k8s"
+          ghcr.io/yannh/kubeconform:latest-alpine
+          -summary -kubernetes-version 1.29.0 /k8s
