@@ -1,0 +1,59 @@
+@model IReadOnlyList<Licitaciones.Application.NivelesAprobacion.NivelAprobacionDto>
+@{
+    ViewData["Title"] = "Niveles de aprobación";
+    var culturaCr = new System.Globalization.CultureInfo("es-CR");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Niveles de aprobación</h1>
+    <a asp-action="Create" class="btn btn-primary">Nuevo nivel</a>
+</div>
+
+<p class="text-muted">El aprobador de una licitación se resuelve automáticamente según su presupuesto, consultando esta tabla — sin condicionales fijos en el código.</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No hay niveles de aprobación configurados.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Monto mínimo (CRC)</th>
+                <th>Monto máximo (CRC)</th>
+                <th>Aprobador</th>
+                <th class="text-end">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var nivel in Model.OrderBy(n => n.MontoMinimoCRC))
+        {
+            <tr>
+                <td>
+                    <span data-monto-crc="@nivel.MontoMinimoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        ₡@nivel.MontoMinimoCRC.ToString("N2", culturaCr)
+                    </span>
+                </td>
+                <td>
+                    @if (nivel.EsRangoAbierto)
+                    {
+                        <text>Sin límite</text>
+                    }
+                    else
+                    {
+                        <span data-monto-crc="@nivel.MontoMaximoCRC?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                            ₡@nivel.MontoMaximoCRC?.ToString("N2", culturaCr)
+                        </span>
+                    }
+                </td>
+                <td>@nivel.Aprobador</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@nivel.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@nivel.Id" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
