@@ -1,0 +1,73 @@
+@using Licitaciones.Domain.Abstracciones
+@model Licitaciones.Web.Models.Ofertas.OfertaIndexViewModel
+@{
+    ViewData["Title"] = Model.LicitacionCodigo is not null ? $"Ofertas de {Model.LicitacionCodigo}" : "Ofertas";
+    var culturaCr = new System.Globalization.CultureInfo("es-CR");
+
+    string FlechaOrden(ColumnaOrdenOferta columna) =>
+        Model.OrdenarPor == columna ? (Model.Descendente ? "▼" : "▲") : "";
+
+    bool SiguienteDireccion(ColumnaOrdenOferta columna) =>
+        Model.OrdenarPor == columna && !Model.Descendente;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>@ViewData["Title"]</h1>
+    @if (Model.LicitacionId is not null)
+    {
+        <div>
+            <a asp-controller="Licitaciones" asp-action="Details" asp-route-id="@Model.LicitacionId" class="btn btn-outline-secondary">Volver a la licitación</a>
+            <a asp-action="Create" asp-route-licitacionId="@Model.LicitacionId" class="btn btn-primary">Nueva oferta</a>
+        </div>
+    }
+</div>
+
+@if (!Model.Ofertas.Any())
+{
+    <p class="text-muted">No hay ofertas registradas.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Proveedor</th>
+                <th><a asp-action="Index" asp-route-licitacionId="@Model.LicitacionId" asp-route-ordenarPor="@ColumnaOrdenOferta.Monto" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenOferta.Monto)" class="link-body-emphasis text-decoration-none">Monto (CRC) <span>@FlechaOrden(ColumnaOrdenOferta.Monto)</span></a></th>
+                <th><a asp-action="Index" asp-route-licitacionId="@Model.LicitacionId" asp-route-ordenarPor="@ColumnaOrdenOferta.FechaRegistro" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenOferta.FechaRegistro)" class="link-body-emphasis text-decoration-none">Fecha de registro <span>@FlechaOrden(ColumnaOrdenOferta.FechaRegistro)</span></a></th>
+                <th class="text-end">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var oferta in Model.Ofertas)
+        {
+            <tr>
+                <td>@oferta.ProveedorNombre</td>
+                <td>
+                    <span data-monto-crc="@oferta.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        ₡@oferta.MontoOfertadoCRC.ToString("N2", culturaCr)
+                    </span>
+                </td>
+                <td>@oferta.FechaRegistro.ALocalCostaRica().ToString("dd/MM/yyyy HH:mm")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@oferta.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@oferta.Id" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav aria-label="Paginación de ofertas">
+            <ul class="pagination">
+                @for (var i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.Pagina ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-licitacionId="@Model.LicitacionId" asp-route-ordenarPor="@Model.OrdenarPor" asp-route-descendente="@Model.Descendente">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}

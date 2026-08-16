@@ -1,0 +1,18 @@
+@model Licitaciones.Application.Ofertas.OfertaDto
+@{
+    ViewData["Title"] = "Eliminar oferta";
+    var culturaCr = new System.Globalization.CultureInfo("es-CR");
+}
+
+<h1>Eliminar oferta</h1>
+
+<div class="alert alert-warning">
+    ¿Confirma que desea eliminar la oferta de <strong>@Model.ProveedorNombre</strong> por
+    ₡@Model.MontoOfertadoCRC.ToString("N2", culturaCr)?
+</div>
+
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" name="licitacionId" value="@Model.LicitacionId" />
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a asp-action="Index" asp-route-licitacionId="@Model.LicitacionId" class="btn btn-secondary">Cancelar</a>
+</form>
