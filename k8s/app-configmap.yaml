@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: licitaciones-config
+  namespace: licitaciones
+data:
+  POSTGRES_DB: "licitaciones"
+  POSTGRES_USER: "licitaciones"
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+  ApiBaseUrl: "http://licitaciones-api.licitaciones.svc.cluster.local"
