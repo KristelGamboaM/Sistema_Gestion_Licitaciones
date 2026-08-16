@@ -1,45 +1,85 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@inject Licitaciones.Application.TiposCambio.ITipoCambioAppService TipoCambioServicio
+@inject IConfiguration Configuracion
+@{
+    var tipoCambioActivo = await TipoCambioServicio.ObtenerActivoAsync();
+    var apiBaseUrl = Configuracion["ApiBaseUrl"] ?? "/api";
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Licitaciones.Web</title>
+    <title>@ViewData["Title"] - Sistema de Gestión de Licitaciones</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Licitaciones.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body data-crc-por-usd="@(tipoCambioActivo?.CRCporUSD.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+      data-fecha-vigencia-tipo-cambio="@(tipoCambioActivo?.FechaVigencia.ToString("yyyy-MM-dd") ?? "")">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-toggleable-sm bg-body border-bottom box-shadow mb-3" data-bs-theme="auto">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Licitaciones.Web</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Licitaciones</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="Mostrar/ocultar navegación">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Licitaciones" asp-action="Index">Licitaciones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Proveedores" asp-action="Index">Proveedores</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Ofertas" asp-action="Index">Ofertas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="NivelesAprobacion" asp-action="Index">Niveles de aprobación</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="TiposCambio" asp-action="Index">Tipo de cambio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@apiBaseUrl/swagger" target="_blank" rel="noopener">API (Swagger)</a>
                         </li>
                     </ul>
+                    <div class="d-flex gap-2">
+                        <button id="toggle-moneda" type="button" class="btn btn-sm btn-outline-secondary" title="Alternar entre colones y dólares">Ver en $ USD</button>
+                        <button id="toggle-tema" type="button" class="btn btn-sm btn-outline-secondary" title="Alternar modo claro/oscuro">🌓 Tema</button>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @if (TempData["Mensaje"] is string mensajeExito)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @mensajeExito
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            }
+            @if (TempData["Error"] is string mensajeError)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @mensajeError
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            }
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - Licitaciones.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - Sistema de Gestión de Licitaciones - Universidad Técnica Nacional
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
