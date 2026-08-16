@@ -1,0 +1,16 @@
+@model Licitaciones.Application.Proveedores.ProveedorDto
+@{
+    ViewData["Title"] = "Eliminar proveedor";
+}
+
+<h1>Eliminar proveedor</h1>
+
+<div class="alert alert-warning">
+    ¿Confirma que desea eliminar el proveedor <strong>@Model.Nombre</strong>? Esta acción aplica un borrado
+    lógico: si el proveedor tiene ofertas registradas, su historial se conserva.
+</div>
+
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
