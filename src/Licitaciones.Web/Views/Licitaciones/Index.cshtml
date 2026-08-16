@@ -1,0 +1,92 @@
+@using Licitaciones.Domain.Abstracciones
+@model Licitaciones.Web.Models.Licitaciones.LicitacionIndexViewModel
+@{
+    ViewData["Title"] = "Licitaciones";
+
+    string FlechaOrden(ColumnaOrdenLicitacion columna) =>
+        Model.OrdenarPor == columna ? (Model.Descendente ? "▼" : "▲") : "";
+
+    bool SiguienteDireccion(ColumnaOrdenLicitacion columna) =>
+        Model.OrdenarPor == columna && !Model.Descendente;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Licitaciones</h1>
+    <a asp-action="Create" class="btn btn-primary">Nueva licitación</a>
+</div>
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <input type="text" name="busqueda" value="@Model.Busqueda" class="form-control" placeholder="Buscar por código o título..." />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+</form>
+
+@if (!Model.Licitaciones.Any())
+{
+    <p class="text-muted">No hay licitaciones que coincidan con la búsqueda.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th><a asp-action="Index" asp-route-busqueda="@Model.Busqueda" asp-route-ordenarPor="@ColumnaOrdenLicitacion.Codigo" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenLicitacion.Codigo)" class="link-body-emphasis text-decoration-none">Código <span>@FlechaOrden(ColumnaOrdenLicitacion.Codigo)</span></a></th>
+                <th><a asp-action="Index" asp-route-busqueda="@Model.Busqueda" asp-route-ordenarPor="@ColumnaOrdenLicitacion.Titulo" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenLicitacion.Titulo)" class="link-body-emphasis text-decoration-none">Título <span>@FlechaOrden(ColumnaOrdenLicitacion.Titulo)</span></a></th>
+                <th><a asp-action="Index" asp-route-busqueda="@Model.Busqueda" asp-route-ordenarPor="@ColumnaOrdenLicitacion.Estado" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenLicitacion.Estado)" class="link-body-emphasis text-decoration-none">Estado <span>@FlechaOrden(ColumnaOrdenLicitacion.Estado)</span></a></th>
+                <th><a asp-action="Index" asp-route-busqueda="@Model.Busqueda" asp-route-ordenarPor="@ColumnaOrdenLicitacion.FechaCierre" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenLicitacion.FechaCierre)" class="link-body-emphasis text-decoration-none">Cierre (Costa Rica) <span>@FlechaOrden(ColumnaOrdenLicitacion.FechaCierre)</span></a></th>
+                <th><a asp-action="Index" asp-route-busqueda="@Model.Busqueda" asp-route-ordenarPor="@ColumnaOrdenLicitacion.Presupuesto" asp-route-descendente="@SiguienteDireccion(ColumnaOrdenLicitacion.Presupuesto)" class="link-body-emphasis text-decoration-none">Presupuesto (CRC) <span>@FlechaOrden(ColumnaOrdenLicitacion.Presupuesto)</span></a></th>
+                <th class="text-end">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var licitacion in Model.Licitaciones)
+        {
+            <tr>
+                <td>@licitacion.Codigo</td>
+                <td>@licitacion.Titulo</td>
+                <td>
+                    @{
+                        var claseBadge = licitacion.Estado switch
+                        {
+                            "Borrador" => "text-bg-secondary",
+                            "Publicada" => licitacion.EsEfectivamenteCerrada ? "text-bg-warning" : "text-bg-success",
+                            _ => "text-bg-dark",
+                        };
+                        var textoBadge = licitacion.Estado == "Publicada" && licitacion.EsEfectivamenteCerrada
+                            ? "Publicada (vencida)" : licitacion.Estado;
+                    }
+                    <span class="badge @claseBadge">@textoBadge</span>
+                </td>
+                <td>@licitacion.FechaCierre.ALocalCostaRica().ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    <span data-monto-crc="@licitacion.PresupuestoEstimadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        ₡@licitacion.PresupuestoEstimadoCRC.ToString("N2", new System.Globalization.CultureInfo("es-CR"))
+                    </span>
+                </td>
+                <td class="text-end">
+                    <a asp-action="Details" asp-route-id="@licitacion.Id" class="btn btn-sm btn-outline-secondary">Ver</a>
+                    <a asp-action="Edit" asp-route-id="@licitacion.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@licitacion.Id" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav aria-label="Paginación de licitaciones">
+            <ul class="pagination">
+                @for (var i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.Pagina ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-busqueda="@Model.Busqueda" asp-route-ordenarPor="@Model.OrdenarPor" asp-route-descendente="@Model.Descendente">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}
