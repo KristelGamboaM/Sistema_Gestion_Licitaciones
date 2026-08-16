@@ -17,8 +17,7 @@ namespace Licitaciones.FunctionalTests.Comunes;
 /// </summary>
 public sealed class FuncionalWebFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _contenedor = new PostgreSqlBuilder()
-        .WithImage("postgres:16")
+    private readonly PostgreSqlContainer _contenedor = new PostgreSqlBuilder("postgres:16")
         .WithDatabase("licitaciones")
         .WithUsername("licitaciones")
         .WithPassword("licitaciones")
